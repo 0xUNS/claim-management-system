@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  email String @unique
+  hash  String
+
+  role    Role     @default(USER)
+  claims  Claim[]
+  profile Profile?
+
+  @@map("users")
+}
+
+model Profile {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  fullName    String?
+  phoneNumber String?
+  bio         String?
+
+  userId String @unique @db.ObjectId
+  User   User   @relation(fields: [userId], references: [id])
+
+  @@map("profiles")
+}
+
+model Claim {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title       String
+  description String?
+  status      Status  @default(PENDING)
+  productType String?
+  rating      Int?
+  archived    Boolean @default(false)
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@index([updatedAt])
+  @@map("claims")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Status {
+  PENDING
+  ONGOING
+  APPROVED
+  DENIED
+  RESOLVED
+  CANCELLED
+}
