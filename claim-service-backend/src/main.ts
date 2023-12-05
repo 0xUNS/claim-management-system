@@ -9,12 +9,12 @@ async function bootstrap() {
   // Swagger params
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
   const config = new DocumentBuilder()
-    .setTitle('NestJs API 101')
+    .setTitle('Claim Service Rest API')
+    .setDescription('Claim Service Rest API Documentation with Swagger')
     .setVersion('1.0')
-    .addTag('101')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  await app.listen(3000);
+  await app.listen(process.env.PORT);
 }
 bootstrap();

@@ -7,8 +7,13 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     await this.$connect();
   }
 
-  cleanDb() {
-    return this.$transaction([
+  async onModuleDestroy() {
+    await this.$disconnect();
+  }
+
+  async cleanDatabase() {
+    if (process.env.NODE_ENV === 'production') return;
+    return Promise.all([
       this.claim.deleteMany(),
       this.profile.deleteMany(),
       this.user.deleteMany(),

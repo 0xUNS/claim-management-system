@@ -11,9 +11,10 @@ datasource db {
 }
 
 model User {
-  id    String @id @default(auto()) @map("_id") @db.ObjectId
-  email String @unique
-  hash  String
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  email    String  @unique
+  hash     String
+  hashedRt String?
 
   role    Role     @default(USER)
   claims  Claim[]

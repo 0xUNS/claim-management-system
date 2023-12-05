@@ -4,10 +4,20 @@ import { AppService } from './app.service';
 import { ClaimModule } from './claim/claim.module';
 import { PrismaService } from './prisma.service';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AtGuard } from './auth/guard';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), ClaimModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), AuthModule, ClaimModule],
   controllers: [AppController],
-  providers: [AppService, PrismaService],
+  providers: [
+    AppService,
+    PrismaService,
+    {
+      provide: APP_GUARD,
+      useClass: AtGuard,
+    },
+  ],
 })
 export class AppModule {}
