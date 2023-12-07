@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { GetUserId } from '../auth/decorator';
+import { GetUser, GetUserId } from '../auth/decorator';
 import { AtGuard } from '../auth/guard';
 import { UserService } from './user.service';
 import { EditUserDto } from './dto';
@@ -10,7 +10,7 @@ import { EditUserDto } from './dto';
 export class UserController {
   constructor(private userService: UserService) {}
   @Get('me')
-  getMe(@GetUserId() user: User) {
+  getMe(@GetUser() user: User) {
     return user;
   }
 

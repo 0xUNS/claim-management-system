@@ -11,7 +11,9 @@ import { AuthDto } from './dto';
 import { GetUser, GetUserId, Public } from './decorator';
 import { Tokens } from './types';
 import { RtGuard } from './guard';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}

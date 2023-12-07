@@ -49,9 +49,7 @@ export class AuthService {
 
   async loginLocal(dto: AuthDto): Promise<Tokens> {
     const user = await this.prisma.user.findUnique({
-      where: {
-        email: dto.email,
-      },
+      where: { email: dto.email },
     });
 
     if (!user) throw new ForbiddenException('Access Denied');
@@ -69,22 +67,16 @@ export class AuthService {
     await this.prisma.user.updateMany({
       where: {
         id: userId,
-        hashedRt: {
-          not: null,
-        },
+        hashedRt: { not: null },
       },
-      data: {
-        hashedRt: null,
-      },
+      data: { hashedRt: null },
     });
     return true;
   }
 
   async refreshTokens(userId: string, rt: string): Promise<Tokens> {
     const user = await this.prisma.user.findUnique({
-      where: {
-        id: userId,
-      },
+      where: { id: userId },
     });
     if (!user?.hashedRt) throw new ForbiddenException('Access Denied');
 
@@ -100,12 +92,8 @@ export class AuthService {
   async updateRtHash(userId: string, rt: string): Promise<void> {
     const hash = await argon.hash(rt);
     await this.prisma.user.update({
-      where: {
-        id: userId,
-      },
-      data: {
-        hashedRt: hash,
-      },
+      where: { id: userId },
+      data: { hashedRt: hash },
     });
   }
 
@@ -126,9 +114,6 @@ export class AuthService {
       }),
     ]);
 
-    return {
-      access_token: at,
-      refresh_token: rt,
-    };
+    return { access_token: at, refresh_token: rt };
   }
 }
