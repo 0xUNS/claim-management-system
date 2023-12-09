@@ -1,11 +1,12 @@
-import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { GetUser, GetUserId } from '../auth/decorator';
-import { AtGuard } from '../auth/guard';
 import { UserService } from './user.service';
 import { EditUserDto } from './dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-@UseGuards(AtGuard)
+@ApiTags('Users')
+@ApiBearerAuth()
 @Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}

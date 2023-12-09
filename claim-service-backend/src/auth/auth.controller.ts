@@ -11,7 +11,7 @@ import { AuthDto } from './dto';
 import { GetUser, GetUserId, Public } from './decorator';
 import { Tokens } from './types';
 import { RtGuard } from './guard';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -32,6 +32,7 @@ export class AuthController {
     return this.authService.loginLocal(dto);
   }
 
+  @ApiBearerAuth()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   logout(@GetUserId() userId: string): Promise<boolean> {
@@ -39,6 +40,7 @@ export class AuthController {
   }
 
   @Public()
+  @ApiBearerAuth()
   @UseGuards(RtGuard)
   @Post('refresh')
   @HttpCode(HttpStatus.OK)

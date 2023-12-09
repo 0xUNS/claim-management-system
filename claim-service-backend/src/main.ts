@@ -11,10 +11,14 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Claim Service Rest API')
     .setDescription('Claim Service Rest API Documentation with Swagger')
+    .addBearerAuth(
+      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
+      'access-token',
+    )
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-  await app.listen(process.env.PORT);
+  await app.listen(process.env.PORT || 3000);
 }
 bootstrap();
