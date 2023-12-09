@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsOptional, IsString } from 'class-validator';
 
-export class EditUserDto {
+export class UpdateUserDto {
   @ApiProperty({
     description: 'Email address of the user',
     example: 'john.doe@tmail.com',

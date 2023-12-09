@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Patch } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { GetUser, GetUserId } from '../auth/decorator';
+import { GetUser } from '../auth/decorator';
 import { UserService } from './user.service';
-import { EditUserDto } from './dto';
+import { UpdateUserDto } from './dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Users')
@@ -16,7 +16,7 @@ export class UserController {
   }
 
   @Patch()
-  editUser(@GetUserId() userId: string, @Body() dto: EditUserDto) {
+  editUser(@GetUser('sub') userId: string, @Body() dto: UpdateUserDto) {
     return this.userService.editUser(userId, dto);
   }
 }

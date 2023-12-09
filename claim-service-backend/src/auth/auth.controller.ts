@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
-import { GetUser, GetUserId, Public } from './decorator';
+import { GetUser, Public } from './decorator';
 import { Tokens } from './types';
 import { RtGuard } from './guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -35,7 +35,7 @@ export class AuthController {
   @ApiBearerAuth()
   @Post('logout')
   @HttpCode(HttpStatus.OK)
-  logout(@GetUserId() userId: string): Promise<boolean> {
+  logout(@GetUser('sub') userId: string): Promise<boolean> {
     return this.authService.logout(userId);
   }
 
@@ -45,7 +45,7 @@ export class AuthController {
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   refreshTokens(
-    @GetUserId() userId: string,
+    @GetUser('sub') userId: string,
     @GetUser('refreshToken') refreshToken: string,
   ): Promise<Tokens> {
     return this.authService.refreshTokens(userId, refreshToken);

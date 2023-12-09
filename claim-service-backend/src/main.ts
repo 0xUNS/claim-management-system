@@ -11,10 +11,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Claim Service Rest API')
     .setDescription('Claim Service Rest API Documentation with Swagger')
-    .addBearerAuth(
-      { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-      'access-token',
-    )
+    .addBearerAuth()
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);
