@@ -16,7 +16,7 @@ model User {
   hash     String
   hashedRt String?
 
-  role    Role     @default(USER)
+  role    Role     @default(CUSTOMER)
   claims  Claim[]
   profile Profile?
 
@@ -58,8 +58,9 @@ model Claim {
 }
 
 enum Role {
-  USER
-  ADMIN
+  CUSTOMER
+  BO_AGENT
+  SUPERVISOR
 }
 
 enum Status {
@@ -67,6 +68,7 @@ enum Status {
   ONGOING
   APPROVED
   DENIED
+  REJECTED
   RESOLVED
   CANCELLED
 }
