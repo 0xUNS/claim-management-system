@@ -6,9 +6,9 @@ async function main() {
   const prisma = new PrismaClient();
 
   await prisma.$transaction([
-    prisma.user.deleteMany(),
-    prisma.profile.deleteMany(),
     prisma.claim.deleteMany(),
+    prisma.profile.deleteMany(),
+    prisma.user.deleteMany(),
   ]);
 
   // Create back-office agent
@@ -21,7 +21,7 @@ async function main() {
   });
 
   // Create users
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 2; i++) {
     const firstName = faker.person.firstName();
     const lastName = faker.person.lastName();
     await prisma.user.create({
@@ -48,14 +48,14 @@ async function main() {
     where: { role: Role.CUSTOMER },
   });
   for (const user of users) {
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 3; i++) {
       await prisma.claim.create({
         data: {
           title: faker.lorem.sentence(),
           description: faker.lorem.paragraph(),
           status: faker.helpers.arrayElement([
             Status.PENDING,
-            Status.APPROVED,
+            Status.ONGOING,
             Status.CANCELLED,
           ]),
           user: {

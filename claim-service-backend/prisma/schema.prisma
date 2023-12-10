@@ -66,8 +66,6 @@ enum Role {
 enum Status {
   PENDING
   ONGOING
-  APPROVED
-  DENIED
   REJECTED
   RESOLVED
   CANCELLED

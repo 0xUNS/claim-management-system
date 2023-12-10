@@ -5,16 +5,19 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   UseGuards,
+  Query,
+  ParseBoolPipe,
+  ParseIntPipe,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import { ClaimService } from './claim.service';
-import { CreateClaimDto } from './dto/create-claim.dto';
-import { UpdateClaimDto } from './dto/update-claim.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { Roles } from 'src/auth/decorator';
+import { CreateClaimDto, UpdateClaimDto } from './dto';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { GetUser, Roles } from 'src/auth/decorator';
 import { RolesGuard } from 'src/auth/guard';
-import { Role } from '@prisma/client';
+import { Role, Status } from '@prisma/client';
+import { Claim as ClaimEntity } from './entities';
 
 @ApiTags('Claims')
 @ApiBearerAuth()
@@ -22,30 +25,77 @@ import { Role } from '@prisma/client';
 export class ClaimController {
   constructor(private readonly claimService: ClaimService) {}
 
-  @Post()
-  create(@Body() createClaimDto: CreateClaimDto) {
-    return this.claimService.create(createClaimDto);
-  }
-
+  @ApiQuery({ name: 'page', required: false })
+  @ApiQuery({ name: 'limit', required: false })
+  @ApiQuery({ name: 'search', required: false })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: Status,
+  })
+  @ApiQuery({ name: 'archived', required: false })
   @Get()
-  @Roles(Role.BO_AGENT)
-  @UseGuards(RolesGuard)
-  findAll() {
-    return this.claimService.findAll();
+  async getClaims(
+    @GetUser('sub') userId: string,
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query('search') keyword: string = '',
+    @Query('status') status?: Status,
+    @Query('archived', new DefaultValuePipe(false), ParseBoolPipe)
+    archived?: boolean,
+  ): Promise<ClaimEntity[] | []> {
+    return this.claimService.getClaims(
+      userId,
+      page,
+      limit,
+      keyword,
+      status,
+      archived,
+    );
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.claimService.findOne(+id);
+  async getClaimById(
+    @GetUser('sub') userId: string,
+    @Param('id') claimId: string,
+  ) {
+    return this.claimService.getClaimById(userId, claimId);
+  }
+
+  @Roles(Role.CUSTOMER)
+  @UseGuards(RolesGuard)
+  @Post()
+  async createClaim(
+    @GetUser('sub') userId: string,
+    @Body() dto: CreateClaimDto,
+  ): Promise<ClaimEntity> {
+    return this.claimService.createClaim(userId, dto);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateClaimDto: UpdateClaimDto) {
-    return this.claimService.update(+id, updateClaimDto);
+  async updateClaim(
+    @GetUser('sub') userId: string,
+    @Param('id') claimId: string,
+    @Body() dto: UpdateClaimDto,
+  ): Promise<ClaimEntity> {
+    return this.claimService.updateClaimById(userId, claimId, dto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.claimService.remove(+id);
+  @Roles(Role.CUSTOMER)
+  @UseGuards(RolesGuard)
+  @Patch(':id/cancel')
+  async cancelClaim(
+    @GetUser('sub') userId: string,
+    @Param('id') claimId: string,
+  ): Promise<ClaimEntity> {
+    return this.claimService.cancelClaimById(userId, claimId);
+  }
+
+  @Patch(':id/archive')
+  async archiveClaim(
+    @GetUser('sub') userId: string,
+    @Param('id') claimId: string,
+  ): Promise<ClaimEntity> {
+    return this.claimService.archiveClaimById(userId, claimId);
   }
 }
