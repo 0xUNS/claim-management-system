@@ -48,7 +48,7 @@ export class AuthService {
     return tokens;
   }
 
-  async loginLocal(dto: AuthDto): Promise<Tokens> {
+  async loginLocal(dto: AuthDto) {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
@@ -61,7 +61,11 @@ export class AuthService {
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRtHash(user.id, tokens.refresh_token);
 
-    return tokens;
+    const profile = await this.prisma.profile.findUnique({
+      where: { userId: user.id },
+    });
+
+    return { profile, tokens };
   }
 
   async logout(userId: string): Promise<boolean> {
