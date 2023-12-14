@@ -6,7 +6,6 @@ import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { JwtPayload, Tokens } from './types';
-import { CreateUserDto } from './dto';
 
 @Injectable()
 export class AuthService {
@@ -16,56 +15,45 @@ export class AuthService {
     private config: ConfigService,
   ) {}
 
-  async signupLocal(dto: CreateUserDto): Promise<Tokens> {
-    const hash = await argon.hash(dto.password);
-
+  async signupLocal(dto: AuthDto): Promise<any> {
     const user = await this.prisma.user
       .create({
         data: {
           email: dto.email,
-          hash,
-          profile: {
-            create: {
-              fullName: dto.fullName,
-              phoneNumber: dto.phoneNumber,
-              bio: dto.bio,
-            },
-          },
+          hash: await argon.hash(dto.password),
+          fullName: dto.fullName,
+          phoneNumber: dto.phoneNumber,
+          bio: dto.bio,
         },
       })
       .catch((error) => {
-        if (error instanceof PrismaClientKnownRequestError) {
-          if (error.code === 'P2002') {
-            throw new ForbiddenException('Credentials incorrect');
-          }
-        }
+        if (
+          error instanceof PrismaClientKnownRequestError &&
+          error.code === 'P2002'
+        )
+          throw new ForbiddenException('Credentials incorrect');
         throw error;
       });
 
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRtHash(user.id, tokens.refresh_token);
 
-    return tokens;
+    return { user, tokens };
   }
 
-  async loginLocal(dto: AuthDto) {
+  async loginLocal(dto: AuthDto): Promise<any> {
     const user = await this.prisma.user.findUnique({
       where: { email: dto.email },
     });
 
     if (!user) throw new ForbiddenException('Access Denied');
-
-    const passwordMatches = await argon.verify(user.hash, dto.password);
-    if (!passwordMatches) throw new ForbiddenException('Access Denied');
+    if (!(await argon.verify(user.hash, dto.password)))
+      throw new ForbiddenException('Access Denied');
 
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRtHash(user.id, tokens.refresh_token);
 
-    const profile = await this.prisma.profile.findUnique({
-      where: { userId: user.id },
-    });
-
-    return { profile, tokens };
+    return { user, tokens };
   }
 
   async logout(userId: string): Promise<boolean> {
@@ -79,26 +67,25 @@ export class AuthService {
     return true;
   }
 
-  async refreshTokens(userId: string, rt: string): Promise<Tokens> {
+  async refreshTokens(userId: string, rt: string): Promise<any> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
     });
     if (!user?.hashedRt) throw new ForbiddenException('Access Denied');
 
-    const rtMatches = await argon.verify(user.hashedRt, rt);
-    if (!rtMatches) throw new ForbiddenException('Access Denied');
+    if (!(await argon.verify(user.hashedRt, rt)))
+      throw new ForbiddenException('Access Denied');
 
     const tokens = await this.getTokens(user.id, user.email);
     await this.updateRtHash(user.id, tokens.refresh_token);
 
-    return tokens;
+    return { user, tokens };
   }
 
   async updateRtHash(userId: string, rt: string): Promise<void> {
-    const hash = await argon.hash(rt);
     await this.prisma.user.update({
       where: { id: userId },
-      data: { hashedRt: hash },
+      data: { hashedRt: await argon.hash(rt) },
     });
   }
 

@@ -7,7 +7,6 @@ async function main() {
 
   await prisma.$transaction([
     prisma.claim.deleteMany(),
-    prisma.profile.deleteMany(),
     prisma.user.deleteMany(),
   ]);
 
@@ -32,13 +31,9 @@ async function main() {
           provider: 't-mail.co',
         }),
         hash: await argon.hash('pw1234'),
-        profile: {
-          create: {
-            fullName: `${firstName} ${lastName}`,
-            phoneNumber: faker.phone.number('(+212)6 ###-#####'),
-            bio: faker.lorem.paragraph(),
-          },
-        },
+        fullName: `${firstName} ${lastName}`,
+        phoneNumber: faker.phone.number('(+212)6 ###-#####'),
+        bio: faker.lorem.paragraph(),
       },
     });
   }

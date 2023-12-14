@@ -11,31 +11,21 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(auto()) @map("_id") @db.ObjectId
-  email    String  @unique
-  hash     String
-  hashedRt String?
-
-  role    Role     @default(CUSTOMER)
-  claims  Claim[]
-  profile Profile?
-
-  @@map("users")
-}
-
-model Profile {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  email     String   @unique
+  hash      String
+  hashedRt  String?
 
   fullName    String?
   phoneNumber String?
   bio         String?
 
-  userId String @unique @db.ObjectId
-  User   User   @relation(fields: [userId], references: [id])
+  role   Role    @default(CUSTOMER)
+  claims Claim[]
 
-  @@map("profiles")
+  @@map("users")
 }
 
 model Claim {

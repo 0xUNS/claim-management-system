@@ -10,9 +10,9 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 @Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}
-  @Get('me')
-  getMe(@GetUser() user: User) {
-    return user;
+  @Get('current')
+  getMe(@GetUser('sub') userId: string): Promise<User> {
+    return this.userService.getUserById(userId);
   }
 
   @Patch()

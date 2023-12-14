@@ -5,9 +5,9 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
-  // Swagger params
+  app.enableCors();
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  // Swagger params
   const config = new DocumentBuilder()
     .setTitle('Claim Service Rest API')
     .setDescription('Claim Service Rest API Documentation with Swagger')

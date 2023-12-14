@@ -9,7 +9,6 @@ import {
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
 import { GetUser, Public } from './decorator';
-import { Tokens } from './types';
 import { RtGuard } from './guard';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
@@ -19,16 +18,16 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Public()
-  @Post('local/signup')
+  @Post('local/register')
   @HttpCode(HttpStatus.CREATED)
-  signupLocal(@Body() dto: AuthDto): Promise<Tokens> {
+  signupLocal(@Body() dto: AuthDto): Promise<any> {
     return this.authService.signupLocal(dto);
   }
 
   @Public()
   @Post('local/login')
   @HttpCode(HttpStatus.OK)
-  loginLocal(@Body() dto: AuthDto) {
+  loginLocal(@Body() dto: AuthDto): Promise<any> {
     return this.authService.loginLocal(dto);
   }
 
@@ -47,7 +46,7 @@ export class AuthController {
   refreshTokens(
     @GetUser('sub') userId: string,
     @GetUser('refreshToken') refreshToken: string,
-  ): Promise<Tokens> {
+  ): Promise<any> {
     return this.authService.refreshTokens(userId, refreshToken);
   }
 }
