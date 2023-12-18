@@ -1,6 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateClaimDto, UpdateClaimDto } from './dto';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { Role, Status } from '@prisma/client';
 import { Claim } from './entities';
 import { plainToClass } from 'class-transformer';

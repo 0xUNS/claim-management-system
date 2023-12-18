@@ -14,8 +14,8 @@ import {
 import { ClaimService } from './claim.service';
 import { CreateClaimDto, UpdateClaimDto } from './dto';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { GetUser, Roles } from 'src/auth/decorator';
-import { RolesGuard } from 'src/auth/guard';
+import { GetUser, Roles } from './../auth/decorator';
+import { RolesGuard } from './../auth/guard';
 import { Role, Status } from '@prisma/client';
 import { Claim as ClaimEntity } from './entities';
 
