@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  claim-service:
+    build:
+      context: .
+    env_file:
+      - .env
+    ports:
+      - '3000:3000'
+    depends_on:
+      - mongodb-service
+    networks:
+      - clusternetwork
+  mongodb-service:
+    hostname: mongodb-service
+    build:
+      context: ./mongodb_replica
+    restart: unless-stopped
+    environment:
+      MONGO_REPLICA_HOST: 127.0.0.1
+      MONGO_REPLICA_PORT: 27017
+    ports:
+      - '27017:27017'
+    healthcheck:
+      test: ['CMD', 'mongo', 'admin', '--port', '27017', '--eval', "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 2s
+      retries: 20
+    networks:
+      - clusternetwork
+    volumes:
+      - mongodata:/data/db
+
+networks:
+  clusternetwork:
+    driver: bridge
+
+volumes:
+  mongodata:
+    driver: local
